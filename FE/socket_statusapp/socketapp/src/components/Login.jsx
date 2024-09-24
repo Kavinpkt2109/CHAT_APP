@@ -15,7 +15,8 @@ const Login = () => {
                 method: "post",
                 data: {
                     name, password
-                }
+                }   
+                
             }
             if (name && password) {
                 debugger
@@ -42,7 +43,7 @@ console.log("eroro",e.message);
         }
     }
     return (<>
-        <div>
+        <div>        
             <label>Name</label>
             <input type='Text' value={name} onChange={(e) => setName(e.target.value)}></input>
             <label>password</label>
