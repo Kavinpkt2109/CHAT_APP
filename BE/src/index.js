@@ -29,9 +29,26 @@ io.on('connection', (socket) => {
     debugger
     console.log("connection established");
 
-    socket.on('getData', async () => {
-        const { rows } = await pool.query(`select * from checkusers`)
-        io.emit("allDetails", rows)
+    socket.on('getchats', async (id) => {
+        try{
+        const { rows } = await pool.query(`select * from groups where groupId=$1`, [id])
+        let parseMessage = JSON.parse(rows[0].chat)
+        parseMessage= parseMessage??[]
+        io.emit("chatdetails", { ...rows[0], chat: parseMessage })
+        }catch(e){
+            console.log("error",e);
+            
+        }
+
+    })
+    socket.on('postMessage', async (data) => {
+        console.log("data from FE", data);
+
+        const { rows } = await pool.query(`update groups set chat=$1 where groupId=$2`, [JSON.stringify(data.messages), data.groupId])
+        var allData = await pool.query(`select * from groups where groupId=$1`, [data.groupId]);
+        let parseMessage = JSON.parse(allData.rows[0].chat)
+        io.emit("chatdetails", { ...allData.rows[0], chat: parseMessage })
+
 
     })
     socket.on('disconnectingOne', async (name) => {
