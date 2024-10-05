@@ -16,8 +16,11 @@
       opacity: 1;
     }
   }
-  
+
   .animate-slide-down {
     animation: slide-down 0.3s forwards; /* Adjust duration as needed */
   }
-  
+  @layer base {
+    h1 {
+      @apply text-2xl;
+    }}
