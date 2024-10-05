@@ -1,4 +1,6 @@
 
+const env=require('dotenv')
+env.config();
 
 const express = require('express')
 const http = require('http')
@@ -8,11 +10,11 @@ const server = http.createServer(app)
 const { Pool } = require('pg')
 const cors = require('cors')
 const pool = new Pool({
-    port: 5432,
-    database: "Testing",
-    user: "postgres",
-    password: "Kavi@6103",
-    host: "localhost"
+    port: process.env.PORT,
+    database:  process.env.DATABASE,
+    user:  process.env.USER,
+    password:  process.env.PASSWORD,
+    host: process.env.host
 })
 
 app.use(cors({
@@ -64,10 +66,7 @@ io.on('connection', (socket) => {
 
 })
 
-// io.on('disconnection', (socket) => {
-//     console.log("connection stopped");
-// })
-
+ 
 app.use(express.json())
 
 server.listen(8080, () => console.log("running on port:8080")
@@ -79,7 +78,7 @@ app.post("/postUser", async (req, res) => {
         debugger
         console.log("req in postusers", req.body);
         let check = await pool.query(`select userId from users where emailId=$1`, [req.body.mail])
-        console.log("check ", check);
+        console.log("check rows", check.rows);
 
         if (check.rows.length == 0) {
             const { rows } = await pool.query(`insert into users (name, password, emailId, role) values ($1,$2,$3,$4) RETURNING *`, [req.body.name, req.body.password, req.body.mail, 1])
@@ -87,7 +86,7 @@ app.post("/postUser", async (req, res) => {
             return
         }
         else {
-            const { rows } = await pool.query(`update users set name=$1, password=$2) values ($1,$2)where emailId=$3 RETURNING *`, [req.body.name, req.body.password, req.body.mail])
+            const { rows } = await pool.query(`update users set name=$1, password=$2 , role=$4 where emailId=$3 RETURNING *`, [req.body.name, req.body.password, req.body.mail,1])
             res.status(200).send(rows)
             return
         }
